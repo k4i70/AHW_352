@@ -16,27 +16,20 @@ module piezo_freq_cnt(
   ///////////////////////////////////////
   // Declare any needed internal nets //
   /////////////////////////////////////
-  logic [14:0] freq_cnt;
-  logic swap;
+  wire [14:0] freq_cnt;
+  wire [14:0] nxt_freq_cnt;
 
   ////////////////////////////////////////////////////
   // Implement comb logic that increments freq_cnt //
   // or clears it if clr or freq_cnt==note_per.   //
   // Use dataflow (assign statement) verilog     //
   ////////////////////////////////////////////////
-  always @ (posedge clk) begin
-    if (note_per == freq_cnt) {
-      freq_cnt = 15h'00000;
-      swap = 1;
-    } else{
-      freq_cnt = freq_cnt + 1;
-    }
-  end
+  assign nxt_freq_cnt = (clr) ? 15'h0000 : ((freq_cnt==note_per) ? 15'h0000 : freq_cnt+1);
   
   ///////////////////////////////////////////////////////////////////
   // instantiate 15 d_ff as a vector to realize freq_cnt register //
   /////////////////////////////////////////////////////////////////
-  d_ff ifreq_cnt[14:0](.Q(freq_cnt), .clk(clk), .D(freq_cnt), .CLRN(clr), .PRN(1'b1));
+  d_ff inxt_freq_cnt[14:0](.Q(freq_cnt), .clk(clk), .D(nxt_freq_cnt), .CLRN(rst_n), .PRN(1'b1));
   
   
 

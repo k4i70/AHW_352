@@ -2,7 +2,7 @@
 // piezoSM.sv: SM to control length and duration of alarm //
 // notes                                                 //
 //                                                      //
-// Student 1 Name: << Enter you name here >>           //
+// Student 1 Name: Andrew Miner           //
 // Student 2 Name: << Enter name if applicable >>     //
 ///////////////////////////////////////////////////////
 module piezoSM(
@@ -40,25 +40,87 @@ module piezoSM(
 		// OK...nxt_state has been done already //
 		/////////////////////////////////////////
 		nxt_state = state_t'(state);
-         <<defaults>>
+        clr = 1;
+		note_per = 15'h0000;
+		note_dur = 8'h00;
 		
 		case (state)
 		  IDLE : begin
-            << your magic here >>
+            if (start & !clk) begin
+				nxt_state = NOTE1;
+				note_per = 15'h7C90;
+				note_dur = 8'h40;
+				clr = 0;
+			end
+			clr = 1'b1;
+			note_per = 15'h0000;
+			note_dur = 8'h00;
 		  end
+
 		  NOTE1 : begin
-		    << your magic here >>
+		    if (note_over & !clk) begin
+				nxt_state = NOTE2;
+				note_per = 15'h6EF9;
+				note_dur = 8'h20;
+			end
+			note_per = 15'h7C90;
+			note_dur = 8'h40;
+			clr = 0;
+			if (stop & !clk) begin
+				nxt_state = IDLE;
+				note_dur = 8'h00;
+				note_per = 15'h0000;
+			end
 		  end
+
 		  NOTE2 : begin
-		    << your magic here >>
+		    if (note_over & !clk) begin
+				nxt_state = NOTE3;
+				note_per = 15'h62E4;
+				note_dur = 8'h10;
+			end
+			note_per = 15'h6EF9;
+			note_dur = 8'h20;
+			clr = 0;
+			if (stop & !clk) begin
+				nxt_state = IDLE;
+				note_dur = 8'h00;
+				note_per = 15'h0000;
+			end
 		  end
+
 		  NOTE3 : begin
-		    << your magic here >>
+		    if (note_over & !clk) begin
+				nxt_state = PAUSE;
+				note_per = 15'h038E;
+				note_dur = 8'h20;
+			end
+			note_per = 15'h62E4;
+			note_dur = 8'h10;
+			clr = 0;
+			if (stop & !clk) begin
+				nxt_state = IDLE;
+				note_dur = 8'h00;
+				note_per = 15'h0000;
+			end
 		  end
+
 		  default : begin			// this is same as PAUSE
-		    << your magic here >>
+		    if (note_over & !clk) begin
+				nxt_state = NOTE1;
+				note_dur = 8'h40;
+				note_per = 15'h7C90;
+			end
+			note_per = 15'h038E;
+			note_dur = 8'h20;
+			clr = 0;
+			if (stop & !clk) begin
+				nxt_state = IDLE;
+				note_dur = 8'h00;
+				note_per = 15'h0000;
+			end
 		  end
-		  
+		   
 		endcase
 		
 	end	
